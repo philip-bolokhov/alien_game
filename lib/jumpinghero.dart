@@ -1,13 +1,11 @@
 import 'dart:math';
 
-import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-class MyHero extends StatelessWidget {
+class JumpingHero extends StatelessWidget {
   final direction;
-  final midrun;
 
-  MyHero({this.direction, this.midrun});
+  JumpingHero({this.direction});
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +13,7 @@ class MyHero extends StatelessWidget {
       return Container(
         width: 150,
         height: 150,
-        child: midrun
-            ? Image.asset('assets/images/hero.png')
-            : Image.asset('assets/images/herorun.png'),
+        child: Image.asset('assets/images/herojump.png'),
       );
     } else {
       return Transform(
@@ -26,9 +22,7 @@ class MyHero extends StatelessWidget {
         child: Container(
           width: 150,
           height: 150,
-          child: midrun
-              ? Image.asset('assets/images/hero.png')
-              : Image.asset('assets/images/herorun.png'),
+          child: Image.asset('assets/images/herojump.png'),
         ),
       );
     }

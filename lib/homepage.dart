@@ -1,7 +1,9 @@
+import 'package:flame/flame.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'button.dart';
 import 'character.dart';
+import 'jumpinghero.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,6 +16,9 @@ class _HomePageState extends State<HomePage> {
   double time = 0;
   double height = 0;
   double initialHeight = heroY;
+  String direction = "right";
+  bool midrun = false;
+  bool midjump = false;
 
   void preJump() {
     time = 0;
@@ -21,14 +26,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   void jump() {
+    midjump = true;
     preJump();
     Timer.periodic(Duration(milliseconds: 50), (timer) {
       time += 0.05;
       height = -4.9 * time * time + 5 * time;
 
       if (initialHeight - height > 1) {
+        midjump = false;
         setState(() {
           heroY = 1;
+          timer.cancel();
         });
       } else {
         setState(() {
@@ -39,14 +47,31 @@ class _HomePageState extends State<HomePage> {
   }
 
   void moveRight() {
-    setState(() {
-      heroX += 0.02;
+    direction = "right";
+
+    Timer.periodic(Duration(milliseconds: 50), (timer) {
+      if (MyButton().userIsHoldingButton() == true) {
+        setState(() {
+          heroX += 0.02;
+          midrun = !midrun;
+        });
+      } else {
+        timer.cancel();
+      }
     });
   }
 
   void moveLeft() {
-    setState(() {
-      heroX -= 0.02;
+    direction = "left";
+    Timer.periodic(Duration(milliseconds: 50), (timer) {
+      if (MyButton().userIsHoldingButton() == true) {
+        setState(() {
+          heroX -= 0.02;
+          midrun = !midrun;
+        });
+      } else {
+        timer.cancel();
+      }
     });
   }
 
@@ -62,14 +87,21 @@ class _HomePageState extends State<HomePage> {
             child: AnimatedContainer(
               alignment: Alignment(heroX, heroY),
               duration: Duration(milliseconds: 0),
-              child: MyHero(),
+              child: midjump
+                  ? JumpingHero(
+                      direction: direction,
+                    )
+                  : MyHero(
+                      direction: direction,
+                      midrun: midrun,
+                    ),
             ),
           ),
         ),
         Expanded(
           flex: 1,
           child: Container(
-            color: Colors.green,
+            color: Colors.brown,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
