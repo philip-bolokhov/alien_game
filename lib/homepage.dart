@@ -1,3 +1,4 @@
+import 'package:alien_game/boss.dart';
 import 'package:flame/flame.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -11,6 +12,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int golemSpriteCount = 1;
+  double golemPosX = 0.5;
+  String golemDirection = 'left';
+
   static double heroX = 0;
   static double heroY = 1;
   double time = 0;
@@ -26,24 +31,26 @@ class _HomePageState extends State<HomePage> {
   }
 
   void jump() {
-    midjump = true;
-    preJump();
-    Timer.periodic(Duration(milliseconds: 50), (timer) {
-      time += 0.05;
-      height = -4.9 * time * time + 5 * time;
+    if (midjump == false) {
+      midjump = true;
+      preJump();
+      Timer.periodic(Duration(milliseconds: 50), (timer) {
+        time += 0.05;
+        height = -4.9 * time * time + 5 * time;
 
-      if (initialHeight - height > 1) {
-        midjump = false;
-        setState(() {
-          heroY = 1;
-          timer.cancel();
-        });
-      } else {
-        setState(() {
-          heroY = initialHeight - height;
-        });
-      }
-    });
+        if (initialHeight - height > 1) {
+          midjump = false;
+          setState(() {
+            heroY = 1;
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            heroY = initialHeight - height;
+          });
+        }
+      });
+    }
   }
 
   void moveRight() {
@@ -52,7 +59,7 @@ class _HomePageState extends State<HomePage> {
     Timer.periodic(Duration(milliseconds: 50), (timer) {
       if (MyButton().userIsHoldingButton() == true) {
         setState(() {
-          heroX += 0.02;
+          heroX += 0.07;
           midrun = !midrun;
         });
       } else {
@@ -66,7 +73,7 @@ class _HomePageState extends State<HomePage> {
     Timer.periodic(Duration(milliseconds: 50), (timer) {
       if (MyButton().userIsHoldingButton() == true) {
         setState(() {
-          heroX -= 0.02;
+          heroX -= 0.07;
           midrun = !midrun;
         });
       } else {
@@ -81,23 +88,40 @@ class _HomePageState extends State<HomePage> {
         body: Column(
       children: [
         Expanded(
-          flex: 4,
-          child: Container(
-            color: Colors.blue,
-            child: AnimatedContainer(
-              alignment: Alignment(heroX, heroY),
-              duration: Duration(milliseconds: 0),
-              child: midjump
-                  ? JumpingHero(
-                      direction: direction,
-                    )
-                  : MyHero(
-                      direction: direction,
-                      midrun: midrun,
-                    ),
-            ),
+          flex: 6,
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/forest1.png"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: AnimatedContainer(
+                  alignment: Alignment(heroX, heroY),
+                  duration: Duration(milliseconds: 0),
+                  child: midjump
+                      ? JumpingHero(
+                          direction: direction,
+                        )
+                      : MyHero(
+                          direction: direction,
+                          midrun: midrun,
+                        ),
+                ),
+              ),
+              Container(
+                alignment: Alignment(golemPosX, 1),
+                child: GolemBoss(
+                  golemDirection: golemDirection,
+                  golemSpriteCount: golemSpriteCount,
+                ),
+              ),
+            ],
           ),
         ),
+        Container(height: 10, color: Colors.green),
         Expanded(
           flex: 1,
           child: Container(
@@ -105,6 +129,12 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                MyButton(
+                  child: (Image.asset("assets/images/play.png")),
+                ),
+                MyButton(
+                  child: (Image.asset("assets/images/melee.png")),
+                ),
                 MyButton(
                   child: Icon(
                     Icons.arrow_back,
